@@ -101,29 +101,14 @@ export default function Login() {
 
       {/* Left Column: Branding / Marketing (60% width) - Hidden on Mobile, shown on Large Screens */}
       <div className="hidden lg:flex lg:w-[60%] flex-col justify-between p-12 relative z-10 border-r border-white/5 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent">
-        {/* Top Branding Section */}
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-lg shadow-lg shadow-indigo-500/20">
-              <Cpu className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-semibold text-sm text-slate-300 tracking-wider uppercase">
-              Authentication
-            </span>
-          </div>
-        </div>
+
 
         {/* Hero & Centerpiece Section */}
         <div className="my-auto py-12 flex flex-col items-start gap-8">
           <div className="space-y-4">
-            <h1 className="text-6xl md:text-7xl xl:text-8xl font-extrabold text-white tracking-tight leading-none flex items-center gap-4">
-              <div className="p-4 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-2xl shadow-xl shadow-indigo-500/30 inline-flex">
-                <Cpu className="w-12 h-12 text-white" />
-              </div>
-              <div>
-                InterviewForge
-                <span className="block bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">AI</span>
-              </div>
+            <h1 className="text-6xl md:text-7xl xl:text-8xl font-extrabold text-white tracking-tight leading-none">
+              InterviewForge
+              <span className="block bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">AI</span>
             </h1>
             <h2 className="text-2xl md:text-3xl font-semibold text-slate-300 mt-6 leading-tight max-w-lg">
               Prepare Smarter. Interview Better. Get Hired Faster.
@@ -246,9 +231,6 @@ export default function Login() {
         {/* Mobile Header (Hidden on large screens) */}
         <div className="flex lg:hidden flex-col items-center mb-6 w-full max-w-md text-center">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2.5 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-xl shadow-lg shadow-indigo-500/20">
-              <Cpu className="w-6 h-6 text-white" />
-            </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               InterviewForge <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">AI</span>
             </h1>
