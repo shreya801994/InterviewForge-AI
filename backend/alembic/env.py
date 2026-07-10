@@ -24,8 +24,9 @@ if config.config_file_name is not None:
 # Map metadata schemas
 target_metadata = Base.metadata
 
-# Dynamic connection string injection from app configuration
-config.set_main_option("sqlalchemy.url", settings.get_db_url)
+# Dynamic connection string injection from app configuration (escape % for configparser)
+db_url_escaped = settings.get_db_url.replace("%", "%%")
+config.set_main_option("sqlalchemy.url", db_url_escaped)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
