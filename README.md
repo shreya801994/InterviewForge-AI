@@ -1,176 +1,143 @@
-# InterviewForge AI - Full-Stack Platform
+# InterviewForge AI
 
-InterviewForge AI is an AI-powered interview preparation platform that generates adaptive technical interviews, evaluates answers, tracks performance, and creates personalized study roadmaps.
-
-This repository covers **Phase 1: Authentication Module** setup and service-layer backend implementation.
+InterviewForge AI is an advanced, AI-powered interview preparation platform that generates adaptive technical interviews, evaluates answers, tracks performance, and creates personalized study roadmaps. It bridges the gap between resume claims and technical reality by automatically parsing resumes and tailoring interviews to the candidate's exact experience level.
 
 ---
 
-## Architecture
+## 🌟 Key Features
+
+*   **Intelligent Resume Analysis:** Upload your PDF resume to instantly extract skills, evaluate projects, and receive an ATS (Applicant Tracking System) Readiness Score and formatting suggestions.
+*   **Adaptive Technical Interviews:** Engage in simulated interview sessions powered by Gemini 2.5 Flash. The AI dynamically generates coding, system design, and behavioral questions tailored to your chosen role and difficulty.
+*   **Comprehensive Reports:** After every session, receive a detailed evaluation including a 10-point scale score, strengths, weaknesses, and a consistency check against your resume claims.
+*   **Performance Dashboard:** Track your progress over time with aggregated statistics, average scores across multiple sessions, and your historical interview timeline.
+*   **Resilient AI Layer:** Built-in safeguards against API rate limits and quotas. Includes automatic retries, exponential backoff, and a graceful UI banner alerting users during Google AI Studio quota exhaustion.
+
+---
+
+## 🏗️ Architecture
 
 ```
-Frontend (React)
-      ↓
-FastAPI Backend
-      ↓
-Service Layer  ← (AuthService, ResumeService, InterviewService, etc.)
-      ↓
-AI Layer       ← (app/ai package: AIClient, prompts, parser, retry)
-      ↓
-Database (PostgreSQL / SQLite fallback) + Google GenAI SDK
+Frontend (React + Vite + TailwindCSS)
+      │
+      ▼
+FastAPI Backend (Python 3.10+)
+      │
+      ├─► Service Layer (AuthService, ResumeService, InterviewService, DashboardService)
+      │
+      ▼
+AI Layer (Google GenAI SDK - gemini-2.5-flash)
+      │
+      ▼
+Database (SQLAlchemy ORM + SQLite / PostgreSQL)
 ```
 
 ---
 
-## Database Schema (SQLAlchemy)
-
-The application defines the following tables:
-1. **users**: Primary user identity, emails, and bcrypt-hashed credentials.
-2. **resumes**: Extracted text and parsed fields (skills, projects, strengths, focus areas).
-3. **interview_sessions**: Holds role, difficulty, and states (`CREATED`, `ACTIVE`, `EVALUATING`, `COMPLETED`).
-4. **interview_messages**: Tracks specific chat history of questions, answers, and evaluations.
-5. **reports**: Detailed recommendations, strengths, weaknesses, and roadmaps.
-6. **skill_scores**: Dynamic skill tracker containing performance score trends per technical topic (e.g. Graphs: 72, DBMS: 67).
-
----
-
-## Backend Directory Layout (Phase 1)
+## 📁 Repository Structure
 
 ```
 interview-forge-ai/
-└── backend/
-    ├── app/
-    │   ├── main.py            # FastAPI configuration & CORS
-    │   ├── config.py          # Settings & Database URL fallback resolver
-    │   ├── database.py        # SQLAlchemy Engine & session provider
-    │   ├── models.py          # Relational Database Models
-    │   ├── schemas.py         # Input/Output Pydantic Validation Schemas
-    │   ├── security.py        # Password hashing & JWT encoder/decoder
-    │   ├── ai/                # Centralized AI Module (google-genai)
-    │   │   ├── client.py      # Reusable AIClient for all AI API calls
-    │   │   ├── prompts.py     # Prompt templates
-    │   │   ├── parser.py      # JSON and Markdown parsing
-    │   │   └── retry.py       # Exponential backoff
-    │   ├── routers/
-    │   │   └── auth.py        # Registration, login & profile endpoints
-    │   └── services/
-    │       ├── auth_service.py # User registration and login business logic
-    │       └── ...            # Architecture-compliant stubs for other services
-    ├── requirements.txt
-    └── .env
+├── backend/
+│   ├── app/
+│   │   ├── ai/                # AI clients, prompt templates, structured parsing
+│   │   ├── routers/           # FastAPI endpoints (Auth, Resume, Interview, Dashboard)
+│   │   ├── services/          # Business logic and database orchestration
+│   │   ├── middleware/        # Rate limiting and error handling
+│   │   ├── models.py          # SQLAlchemy relational models
+│   │   ├── schemas.py         # Pydantic validation schemas
+│   │   └── main.py            # API Entrypoint
+│   ├── tests/                 # Pytest automated test suite
+│   ├── alembic/               # Database migrations
+│   └── .env                   # Backend environment configuration
+│
+└── frontend/
+    ├── src/
+    │   ├── api/               # Axios client and API service wrappers
+    │   ├── components/        # Reusable UI components (Navbar, Sidebar, Loaders)
+    │   ├── context/           # React Context (AuthContext)
+    │   ├── pages/             # Route views (Dashboard, Session, Resume, Login)
+    │   └── App.jsx            # Routing and layout structure
+    ├── index.html             # HTML entry point
+    └── tailwind.config.js     # Tailwind design system tokens
 ```
 
 ---
 
-## Setup & Local Installation
+## 🚀 Setup & Local Installation
 
 ### Prerequisites
-- Python 3.10+
-- Virtual environment tool (`venv`)
+*   **Node.js** (v18+)
+*   **Python** (3.10+)
+*   **Google Gemini API Key**
 
-### Installation Steps
-
-1. **Clone or Navigate to Project Directory**:
-   Set `interview-forge-ai` as your active workspace directory.
-
-2. **Navigate to backend**:
-   ```bash
-   cd backend
-   ```
-
-3. **Create and Activate Virtual Environment**:
-   - **Windows (PowerShell)**:
-     ```powershell
-     python -m venv venv
-     .\venv\Scripts\Activate.ps1
-     ```
-   - **macOS / Linux**:
-     ```bash
-     python -m venv venv
-     source venv/bin/activate
-     ```
-
-4. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Configure Environment Variables**:
-   Create a `.env` file from the template:
-   ```bash
-   cp .env.example .env
-   ```
-   *Note: If `DATABASE_URL` is omitted, the application automatically boots in SQLite fallback mode, creating a local database file `interview_forge.db` inside the backend folder on startup.*
-   
-   **Mock Mode:** Set `AI_MOCK_MODE=true` in your `.env` file to bypass live Gemini API calls and save quota during local development. This mode returns realistic canned responses for all AI interactions and is highly recommended for UI/UX testing.
-
-6. **Run Backend Server**:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-   The backend API will run on `http://127.0.0.1:8000`.
-   Interactive Swagger docs will be available at `http://127.0.0.1:8000/docs`.
-
----
-
-## API Documentation (Authentication Module)
-
-### 1. User Registration
-- **Endpoint**: `POST /api/auth/register`
-- **Request Body (JSON)**:
-  ```json
-  {
-    "name": "Jane Doe",
-    "email": "jane.doe@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response (201 Created)**:
-  ```json
-  {
-    "id": "e6a2b8e3-54cd-4b13-9828-ea3a7263b65e",
-    "name": "Jane Doe",
-    "email": "jane.doe@example.com",
-    "created_at": "2026-06-18T07:15:00.123456Z"
-  }
-  ```
-
-### 2. User Login
-- **Endpoint**: `POST /api/auth/login`
-- **Request Body (JSON)**:
-  ```json
-  {
-    "email": "jane.doe@example.com",
-    "password": "securepassword123"
-  }
-  ```
-- **Response (200 OK)**:
-  ```json
-  {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "token_type": "bearer"
-  }
-  ```
-
-### 3. Fetch Profile (Authenticated)
-- **Endpoint**: `GET /api/auth/me`
-- **Headers**:
-  `Authorization: Bearer <your_access_token_here>`
-- **Response (200 OK)**:
-  ```json
-  {
-    "id": "e6a2b8e3-54cd-4b13-9828-ea3a7263b65e",
-    "name": "Jane Doe",
-    "email": "jane.doe@example.com",
-    "created_at": "2026-06-18T07:15:00.123456Z"
-  }
-  ```
-
----
-
-## Testing
-
-To run the automated tests (tests setup details in `backend/tests`):
+### 1. Clone the Repository
 ```bash
+git clone https://github.com/shreya801994/InterviewForge-AI.git
+cd InterviewForge-AI
+```
+
+### 2. Backend Setup
+```bash
+cd backend
+python -m venv venv
+
+# Windows
+.\venv\Scripts\activate
+# Mac/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+**Environment Variables:**
+Create a `.env` file in the `backend/` directory:
+```env
+ENV=development
+JWT_SECRET_KEY=your_secure_random_string_here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+GEMINI_API_KEY=your_google_gemini_api_key_here
+
+# Set to true to bypass real API calls during UI testing
+AI_MOCK_MODE=false
+```
+*Note: The app uses a local SQLite database (`interview_forge.db`) automatically if no `DATABASE_URL` is provided.*
+
+**Start Backend Server:**
+```bash
+uvicorn app.main:app --reload
+```
+API runs at `http://127.0.0.1:8000`. Interactive docs are available at `http://127.0.0.1:8000/docs`.
+
+### 3. Frontend Setup
+Open a new terminal window:
+```bash
+cd frontend
+npm install
+
+# Start Frontend Dev Server
+npm run dev
+```
+The React application will be available at `http://localhost:5173`.
+
+---
+
+## 🧪 Testing
+
+### Backend Tests
+The backend features a comprehensive `pytest` suite simulating end-to-end API flows, database persistence, and AI mocking.
+```bash
+cd backend
 pytest
 ```
+
+### Mock Mode
+If you want to rapidly test frontend components without consuming your Gemini API quota, you can enable Mock Mode:
+1. Set `AI_MOCK_MODE=true` in `backend/.env`.
+2. Restart the backend server.
+3. The AI layer will instantly return safe, structured mock data (e.g. 8.5/10 scores) instead of making live network requests.
+
+---
+
+## 🛡️ License & Contact
+Created by Shreya Dubey. All rights reserved.
